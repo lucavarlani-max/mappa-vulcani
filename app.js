@@ -28,6 +28,19 @@ const WIKI_SKIP = new Set([
   '353011', // Ecuador (vulcano dei Galápagos) -> altrimenti risolverebbe sullo stato Ecuador
 ]);
 
+// Il dataset Smithsonian GVP usato è fermo al ~2020: per i vulcani più attivi del
+// pianeta "ultima eruzione conosciuta" risulta quindi obsoleta (es. Etna segnava 2020
+// mentre è in eruzione dall'agosto 2026). Qui correggiamo manualmente i casi verificati
+// tramite fonti ufficiali (INGV, USGS, OVPF, JMA), con data di verifica in chiaro.
+const ERUPTION_OVERRIDE = {
+  '211060': { text: 'In corso — nuova fase eruttiva dal 6 agosto 2026, fontane di lava e nuove bocche in Valle del Bove', verified: '15 agosto 2026', source: 'INGV Osservatorio Etneo' },
+  '211040': { text: 'Attività stromboliana persistente, con parossismi il 23 maggio e il 12 giugno 2026', verified: '15 agosto 2026', source: 'INGV' },
+  '332010': { text: 'Eruzione a episodi dal 23 dicembre 2024 — ultimo episodio (53°) il 12-13 agosto 2026, ora in pausa', verified: '15 agosto 2026', source: 'USGS - Hawaiian Volcano Observatory' },
+  '341090': { text: 'Attività persistente nel 2026, con decine di esalazioni di cenere e gas al giorno (semaforo giallo, fase 2)', verified: '15 agosto 2026', source: 'CENAPRED' },
+  '233020': { text: 'Eruzione del 13 febbraio 2026, con colata di lava sul fianco sud che ha raggiunto la strada nazionale il 13 marzo', verified: '15 agosto 2026', source: 'OVPF-IPGP' },
+  '282080': { text: 'Attività esplosiva frequente nel 2025-2026, con una grande eruzione ad aprile 2026 (pennacchio di cenere di 3,4 km)', verified: '15 agosto 2026', source: 'JMA / GVP' },
+};
+
 const WMO = {
   0:['Sereno','☀️'],1:['Prevalentemente sereno','🌤️'],2:['Parzialmente nuvoloso','⛅'],3:['Nuvoloso','☁️'],
   45:['Nebbia','🌫️'],48:['Nebbia con brina','🌫️'],
@@ -60,6 +73,12 @@ function popupShell(v) {
     ? `<a class="vc-webcam-btn" href="${v.webcam.url}" target="_blank" rel="noopener noreferrer">🎥 Guarda la webcam — ${v.webcam.label}</a>`
     : `<span class="vc-webcam-none">Nessuna webcam pubblica nota per questo vulcano</span>`;
 
+  const eruptOverride = ERUPTION_OVERRIDE[v.id];
+  const eruptText = eruptOverride ? eruptOverride.text : v.erupt;
+  const eruptNote = eruptOverride
+    ? `<div class="vc-erupt-note vc-erupt-note--fresh">✓ Verificato il ${eruptOverride.verified} — fonte: ${eruptOverride.source}</div>`
+    : `<div class="vc-erupt-note">Dato Smithsonian GVP (dataset ~2020) — potrebbero esistere eruzioni più recenti non riportate qui</div>`;
+
   return `
     <div class="vc-photo vc-photo-fallback" data-photo="1">
       <div class="vc-photo-caption">
@@ -74,7 +93,7 @@ function popupShell(v) {
       </div>
       <div class="vc-row">
         <span class="ico">🌋</span>
-        <div><span class="vc-label">Ultima eruzione conosciuta</span>${v.erupt}</div>
+        <div><span class="vc-label">Ultima eruzione conosciuta</span>${eruptText}${eruptNote}</div>
       </div>
       <div class="vc-row vc-weather-row">
         <span class="ico">🌡️</span>
