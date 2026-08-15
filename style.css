@@ -1,0 +1,323 @@
+:root{
+  --natgeo-yellow:#ffcc00;
+  --ink:#0d0d0d;
+  --ink-2:#161513;
+  --paper:#f4efe4;
+  --ember:#e2572b;
+  --ember-dark:#a83218;
+  --line:#2b2a27;
+}
+
+*{box-sizing:border-box;}
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'PT Serif',Georgia,serif;
+  overflow:hidden;
+}
+
+/* ---------- top bar ---------- */
+#top-bar{
+  height:64px;
+  background:var(--ink);
+  border-bottom:5px solid var(--natgeo-yellow);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:relative;
+  z-index:1200;
+}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand-mark{
+  font-family:'Oswald',sans-serif;
+  font-weight:700;
+  font-size:26px;
+  letter-spacing:2px;
+  color:var(--natgeo-yellow);
+}
+.brand-sub{
+  font-family:'Oswald',sans-serif;
+  font-weight:400;
+  font-size:12px;
+  letter-spacing:3px;
+  color:var(--paper);
+  text-transform:uppercase;
+  opacity:.8;
+}
+.top-controls{display:flex;align-items:center;gap:14px;position:relative;}
+#search-box{
+  font-family:'Oswald',sans-serif;
+  background:var(--ink-2);
+  border:1px solid #3a3934;
+  color:var(--paper);
+  padding:9px 14px;
+  width:260px;
+  font-size:13px;
+  letter-spacing:.5px;
+  border-radius:2px;
+}
+#search-box:focus{outline:none;border-color:var(--natgeo-yellow);}
+#search-results{
+  position:absolute;
+  top:44px;
+  left:0;
+  width:340px;
+  max-height:340px;
+  overflow-y:auto;
+  background:var(--ink-2);
+  border:1px solid var(--natgeo-yellow);
+  display:none;
+  z-index:1300;
+}
+#search-results.show{display:block;}
+.search-item{
+  padding:8px 12px;
+  font-family:'Oswald',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  border-bottom:1px solid #2b2a27;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+.search-item:hover{background:#28241a;color:var(--natgeo-yellow);}
+.search-item small{opacity:.6;font-weight:300;}
+.stat-pill{
+  font-family:'Oswald',sans-serif;
+  font-size:12px;
+  letter-spacing:1px;
+  background:var(--natgeo-yellow);
+  color:var(--ink);
+  padding:7px 12px;
+  border-radius:2px;
+  white-space:nowrap;
+  font-weight:600;
+}
+
+/* ---------- map frame ---------- */
+#map-frame{
+  position:relative;
+  height:calc(100% - 64px - 34px);
+  border-left:5px solid var(--natgeo-yellow);
+  border-right:5px solid var(--natgeo-yellow);
+}
+#map{
+  width:100%;
+  height:100%;
+  background:#0a0f12;
+}
+
+#loading-banner{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Oswald',sans-serif;
+  letter-spacing:2px;
+  color:var(--natgeo-yellow);
+  background:rgba(13,13,13,.9);
+  padding:14px 22px;
+  border:1px solid var(--natgeo-yellow);
+  z-index:1400;
+  font-size:13px;
+}
+#loading-banner.hidden{display:none;}
+
+/* ---------- legend ---------- */
+#legend{
+  position:absolute;
+  bottom:20px;
+  left:14px;
+  z-index:1000;
+  background:rgba(13,13,13,.88);
+  border:1px solid var(--natgeo-yellow);
+  padding:10px 14px 12px;
+  max-width:190px;
+}
+#legend h3{
+  margin:0 0 8px;
+  font-family:'Oswald',sans-serif;
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--natgeo-yellow);
+  text-transform:uppercase;
+  border-bottom:1px solid #3a3934;
+  padding-bottom:6px;
+}
+#legend-list{list-style:none;margin:0;padding:0;}
+#legend-list li{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Oswald',sans-serif;
+  font-size:11.5px;
+  color:var(--paper);
+  margin-bottom:5px;
+}
+.dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.4);}
+
+/* ---------- bottom bar ---------- */
+#bottom-bar{
+  height:34px;
+  background:var(--ink);
+  border-top:1px solid #2b2a27;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:26px;
+  font-family:'Oswald',sans-serif;
+  font-size:10.5px;
+  letter-spacing:.5px;
+  color:#8a8880;
+}
+#bottom-bar strong{color:var(--natgeo-yellow);font-weight:500;}
+
+/* ---------- leaflet overrides ---------- */
+.leaflet-container{background:#0a0f12;font-family:'PT Serif',serif;}
+.natgeo-tiles{filter:sepia(.2) saturate(1.05) brightness(.72) contrast(1.15) hue-rotate(-6deg);}
+.volcano-icon{
+  border-radius:50%;
+  border:1.5px solid rgba(0,0,0,.55);
+  box-shadow:0 0 0 2px rgba(255,204,0,0);
+}
+.marker-cluster-custom{
+  background:rgba(226,87,43,.85);
+  border:2px solid var(--natgeo-yellow);
+  border-radius:50%;
+  color:#fff;
+  font-family:'Oswald',sans-serif;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ---------- popup ---------- */
+.leaflet-popup-content-wrapper{
+  background:var(--ink-2);
+  color:var(--paper);
+  border-radius:2px;
+  border:1px solid var(--natgeo-yellow);
+  padding:0;
+  overflow:hidden;
+}
+.leaflet-popup-content{margin:0;width:300px !important;}
+.leaflet-popup-tip{background:var(--natgeo-yellow);}
+.leaflet-popup-close-button{
+  color:var(--natgeo-yellow) !important;
+  font-size:20px !important;
+  padding:6px 8px 0 0 !important;
+  z-index:5;
+}
+
+.vc-photo{
+  width:100%;
+  height:150px;
+  background-size:cover;
+  background-position:center;
+  background-color:#1c1a16;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+}
+.vc-photo-fallback{
+  background:linear-gradient(160deg,#3a1f12 0%, #7a2c12 45%, #e2572b 80%, #ffcc00 100%);
+}
+.vc-photo-caption{
+  background:linear-gradient(to top, rgba(0,0,0,.85), transparent);
+  width:100%;
+  padding:20px 12px 8px;
+}
+.vc-name{
+  font-family:'Oswald',sans-serif;
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:.5px;
+  color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.8);
+}
+.vc-country{
+  font-family:'Oswald',sans-serif;
+  font-size:11px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--natgeo-yellow);
+}
+
+.vc-body{padding:12px 14px 14px;}
+.vc-row{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  margin-bottom:8px;
+  font-size:13px;
+  line-height:1.35;
+}
+.vc-row .ico{width:16px;text-align:center;flex:0 0 auto;opacity:.9;}
+.vc-label{
+  font-family:'Oswald',sans-serif;
+  font-size:9.5px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#a8a49a;
+  display:block;
+  margin-bottom:1px;
+}
+.vc-weather{display:flex;align-items:center;gap:8px;}
+.vc-weather-icon{font-size:22px;line-height:1;}
+.vc-loading{color:#8a8880;font-style:italic;font-size:12.5px;}
+
+.vc-extract{
+  font-size:12px;
+  line-height:1.45;
+  color:#d8d4c8;
+  margin-top:2px;
+  font-style:italic;
+}
+
+.vc-webcam-btn, .vc-webcam-none{
+  display:inline-block;
+  margin-top:4px;
+  font-family:'Oswald',sans-serif;
+  font-size:11.5px;
+  letter-spacing:.5px;
+  text-decoration:none;
+  padding:7px 11px;
+  border-radius:2px;
+}
+.vc-webcam-btn{
+  background:var(--natgeo-yellow);
+  color:var(--ink);
+  font-weight:600;
+}
+.vc-webcam-btn:hover{background:#fff;}
+.vc-webcam-none{
+  color:#8a8880;
+  font-size:11px;
+  font-style:italic;
+}
+
+.vc-source{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #3a3934;
+  font-family:'Oswald',sans-serif;
+  font-size:9px;
+  letter-spacing:.5px;
+  color:#726f66;
+}
+
+/* scrollbar for search */
+#search-results::-webkit-scrollbar{width:8px;}
+#search-results::-webkit-scrollbar-thumb{background:#3a3934;}
+
+@media (max-width:720px){
+  #top-bar{flex-direction:column;height:auto;gap:8px;padding:10px 14px;align-items:flex-start;}
+  .top-controls{width:100%;flex-direction:column;align-items:stretch;gap:8px;}
+  #search-box{width:100%;}
+  #search-results{width:100%;}
+  #map-frame{height:calc(100% - 128px - 44px);}
+  #bottom-bar{flex-direction:column;height:auto;gap:2px;padding:6px 0;}
+}

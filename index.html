@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlante dei Vulcani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header id="top-bar">
+  <div class="brand">
+    <span class="brand-mark">ATLANTE</span>
+    <span class="brand-sub">GEOGRAFICO DEI VULCANI</span>
+  </div>
+  <div class="top-controls">
+    <input id="search-box" type="text" placeholder="Cerca un vulcano o un paese…" autocomplete="off">
+    <div id="search-results"></div>
+    <div class="stat-pill"><span id="stat-count">0</span> vulcani mappati</div>
+  </div>
+</header>
+
+<main id="map-frame">
+  <div id="map"></div>
+
+  <div id="legend">
+    <h3>Tipologia</h3>
+    <ul id="legend-list"></ul>
+  </div>
+
+  <div id="loading-banner">Caricamento dell'atlante vulcanico…</div>
+</main>
+
+<footer id="bottom-bar">
+  <span>Dati eruzioni &amp; localizzazione: <strong>Smithsonian Institution — Global Volcanism Program</strong></span>
+  <span>Meteo in tempo reale: <strong>Open-Meteo</strong></span>
+  <span>Immagini &amp; sintesi: <strong>Wikipedia</strong></span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

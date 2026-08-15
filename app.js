@@ -1,0 +1,237 @@
+/* Atlante Geografico dei Vulcani — National Geographic style volcano atlas */
+
+const CATEGORIES = [
+  { key: 'strato',   label: 'Stratovulcano',      color: '#e2572b', test: t => t.includes('strato') },
+  { key: 'shield',   label: 'Vulcano a scudo',     color: '#ffb300', test: t => t.includes('shield') },
+  { key: 'caldera',  label: 'Caldera',             color: '#c0392b', test: t => t.includes('caldera') },
+  { key: 'complex',  label: 'Complesso vulcanico',  color: '#9b6b9e', test: t => t.includes('complex') || t.includes('compound') },
+  { key: 'dome',     label: 'Duomo di lava',       color: '#8a8375', test: t => t.includes('dome') },
+  { key: 'cone',     label: 'Cono / Maar / Fessura', color: '#c9974a', test: t => t.includes('cone') || t.includes('maar') || t.includes('tuff') || t.includes('fissure') || t.includes('crater row') },
+  { key: 'field',    label: 'Campo vulcanico',     color: '#6b8f3e', test: t => t.includes('field') },
+  { key: 'sub',      label: 'Sottomarino / Subglaciale', color: '#2e86ab', test: t => t.includes('submarine') || t.includes('subglacial') },
+  { key: 'other',    label: 'Altro',               color: '#9a978d', test: () => true },
+];
+
+function categoryOf(type) {
+  const t = (type || '').toLowerCase();
+  return CATEGORIES.find(c => c.test(t));
+}
+
+const WMO = {
+  0:['Sereno','☀️'],1:['Prevalentemente sereno','🌤️'],2:['Parzialmente nuvoloso','⛅'],3:['Nuvoloso','☁️'],
+  45:['Nebbia','🌫️'],48:['Nebbia con brina','🌫️'],
+  51:['Pioviggine leggera','🌦️'],53:['Pioviggine','🌦️'],55:['Pioviggine intensa','🌦️'],
+  61:['Pioggia debole','🌧️'],63:['Pioggia','🌧️'],65:['Pioggia intensa','🌧️'],
+  66:['Pioggia gelata','🌧️'],67:['Pioggia gelata intensa','🌧️'],
+  71:['Neve debole','🌨️'],73:['Neve','🌨️'],75:['Neve intensa','❄️'],77:['Granelli di neve','❄️'],
+  80:['Rovesci deboli','🌦️'],81:['Rovesci','🌧️'],82:['Rovesci violenti','⛈️'],
+  85:['Rovesci di neve','🌨️'],86:['Rovesci di neve intensi','❄️'],
+  95:['Temporale','⛈️'],96:['Temporale con grandine','⛈️'],99:['Temporale violento con grandine','⛈️'],
+};
+
+let ALL = [];
+let markerIndex = {}; // id -> leaflet marker
+
+function iconFor(v) {
+  const cat = categoryOf(v.type);
+  return L.divIcon({
+    className: 'volcano-icon-wrap',
+    html: `<div class="volcano-icon" style="width:11px;height:11px;background:${cat.color}"></div>`,
+    iconSize: [11, 11],
+    iconAnchor: [5, 5],
+    popupAnchor: [0, -6],
+  });
+}
+
+function popupShell(v) {
+  const cat = categoryOf(v.type);
+  const webcamHtml = v.webcam
+    ? `<a class="vc-webcam-btn" href="${v.webcam.url}" target="_blank" rel="noopener noreferrer">🎥 Guarda la webcam — ${v.webcam.label}</a>`
+    : `<span class="vc-webcam-none">Nessuna webcam pubblica nota per questo vulcano</span>`;
+
+  return `
+    <div class="vc-photo vc-photo-fallback" data-photo="1">
+      <div class="vc-photo-caption">
+        <div class="vc-name">${v.name}</div>
+        <div class="vc-country">${v.country}${v.region ? ' · ' + v.region : ''}</div>
+      </div>
+    </div>
+    <div class="vc-body">
+      <div class="vc-row">
+        <span class="ico">⛰️</span>
+        <div><span class="vc-label">Tipologia · Quota</span>${cat.label} · ${v.elev} m s.l.m.</div>
+      </div>
+      <div class="vc-row">
+        <span class="ico">🌋</span>
+        <div><span class="vc-label">Ultima eruzione conosciuta</span>${v.erupt}</div>
+      </div>
+      <div class="vc-row vc-weather-row">
+        <span class="ico">🌡️</span>
+        <div style="flex:1">
+          <span class="vc-label">Condizioni attuali</span>
+          <span class="vc-loading">Rilevamento in corso…</span>
+        </div>
+      </div>
+      <div class="vc-extract-wrap"></div>
+      <div class="vc-row" style="margin-top:2px;">
+        ${webcamHtml}
+      </div>
+      <div class="vc-source">Vulcano #${v.id} · Fonte dati: Smithsonian GVP</div>
+    </div>
+  `;
+}
+
+async function enrichPopup(v, node) {
+  // --- weather ---
+  const weatherRow = node.querySelector('.vc-weather-row > div');
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${v.lat}&longitude=${v.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      const c = data.current;
+      const w = WMO[c.weather_code] || ['Condizioni non disponibili', '🌐'];
+      weatherRow.innerHTML = `
+        <span class="vc-label">Condizioni attuali (in tempo reale)</span>
+        <div class="vc-weather">
+          <span class="vc-weather-icon">${w[1]}</span>
+          <span>${Math.round(c.temperature_2m)}°C, ${w[0]} · vento ${Math.round(c.wind_speed_10m)} km/h · um. ${c.relative_humidity_2m}%</span>
+        </div>`;
+    })
+    .catch(() => {
+      weatherRow.innerHTML = `<span class="vc-label">Condizioni attuali</span><span class="vc-loading">Dati meteo non disponibili</span>`;
+    });
+
+  // --- photo + extract via Wikipedia ---
+  const photoEl = node.querySelector('[data-photo]');
+  const extractWrap = node.querySelector('.vc-extract-wrap');
+  const title = encodeURIComponent(v.name.replace(/ /g, '_'));
+
+  async function tryWiki(lang) {
+    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${title}`, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('not found');
+    return res.json();
+  }
+
+  try {
+    let data;
+    try { data = await tryWiki('it'); } catch (e) { data = await tryWiki('en'); }
+    if (data.thumbnail && data.thumbnail.source) {
+      const imgUrl = data.thumbnail.source.replace(/\/\d+px-/, '/500px-');
+      photoEl.style.backgroundImage = `url('${imgUrl}')`;
+      photoEl.classList.remove('vc-photo-fallback');
+    }
+    if (data.extract) {
+      extractWrap.innerHTML = `<div class="vc-extract">"${data.extract.slice(0, 160)}${data.extract.length > 160 ? '…' : ''}" <span style="opacity:.6">— Wikipedia</span></div>`;
+    }
+  } catch (e) {
+    // no wiki data available — keep fallback visuals
+  }
+}
+
+function buildLegend() {
+  const list = document.getElementById('legend-list');
+  const used = new Set(ALL.map(v => categoryOf(v.type).key));
+  CATEGORIES.filter(c => used.has(c.key)).forEach(c => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.label}`;
+    list.appendChild(li);
+  });
+}
+
+function initMap() {
+  const map = L.map('map', {
+    worldCopyJump: true,
+    minZoom: 2,
+    maxZoom: 17,
+    zoomControl: false,
+  }).setView([15, 10], 3);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: 'Mappa: © OpenTopoMap (CC-BY-SA) · dati © OpenStreetMap contributors, SRTM',
+    subdomains: 'abc',
+    maxZoom: 17,
+    className: 'natgeo-tiles',
+  }).addTo(map);
+
+  const cluster = L.markerClusterGroup({
+    maxClusterRadius: 45,
+    iconCreateFunction: function (c) {
+      const count = c.getChildCount();
+      const size = count > 100 ? 44 : count > 20 ? 36 : 28;
+      return L.divIcon({
+        html: `<span>${count}</span>`,
+        className: 'marker-cluster-custom',
+        iconSize: [size, size],
+      });
+    },
+  });
+
+  ALL.forEach(v => {
+    const marker = L.marker([v.lat, v.lon], { icon: iconFor(v) });
+    marker.bindPopup(popupShell(v), { maxWidth: 300, minWidth: 300, className: 'volcano-popup' });
+    marker.on('popupopen', (e) => enrichPopup(v, e.popup._contentNode));
+    markerIndex[v.id] = marker;
+    cluster.addLayer(marker);
+  });
+
+  map.addLayer(cluster);
+  return { map, cluster };
+}
+
+function normalize(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function setupSearch(map, cluster) {
+  const box = document.getElementById('search-box');
+  const results = document.getElementById('search-results');
+  let timer;
+
+  box.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const q = normalize(box.value.trim());
+      if (q.length < 2) { results.classList.remove('show'); results.innerHTML = ''; return; }
+      const matches = ALL.filter(v => normalize(v.name).includes(q) || normalize(v.country).includes(q)).slice(0, 30);
+      if (!matches.length) {
+        results.innerHTML = `<div class="search-item">Nessun risultato</div>`;
+      } else {
+        results.innerHTML = matches.map(v =>
+          `<div class="search-item" data-id="${v.id}">${v.name} <small>${v.country}</small></div>`
+        ).join('');
+      }
+      results.classList.add('show');
+    }, 150);
+  });
+
+  results.addEventListener('click', (e) => {
+    const item = e.target.closest('.search-item');
+    if (!item || !item.dataset.id) return;
+    const v = ALL.find(x => x.id === item.dataset.id);
+    if (!v) return;
+    results.classList.remove('show');
+    box.value = v.name;
+    map.setView([v.lat, v.lon], 10, { animate: true });
+    const marker = markerIndex[v.id];
+    setTimeout(() => {
+      cluster.zoomToShowLayer(marker, () => marker.openPopup());
+    }, 300);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.top-controls')) results.classList.remove('show');
+  });
+}
+
+async function boot() {
+  const res = await fetch('data/volcanoes.json');
+  ALL = await res.json();
+  document.getElementById('stat-count').textContent = ALL.length;
+  buildLegend();
+  const { map, cluster } = initMap();
+  setupSearch(map, cluster);
+  document.getElementById('loading-banner').classList.add('hidden');
+}
+
+boot();
