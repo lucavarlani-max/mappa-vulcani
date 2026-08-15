@@ -23,9 +23,16 @@ function categoryOf(type) {
 // ricerca quando non esiste una voce dedicata corretta.
 const WIKI_TITLE_OVERRIDE = {
   '211050': { lang: 'it', title: 'Isola di Vulcano' }, // Vulcano (Isole Eolie), non il concetto generico "vulcano"
+  '390015': { lang: 'it', title: 'Monte Melbourne' }, // vulcano antartico, non la città australiana
+  '390022': { lang: 'en', title: 'Mount Berlin' }, // vulcano antartico, non la capitale tedesca
+  '224010': { lang: 'en', title: 'Mount Cameroon' }, // vulcano, non lo stato
+  '341040': { lang: 'en', title: 'Colima Volcano' }, // Volcán de Colima, non lo stato messicano di Colima
+  '343050': { lang: 'en', title: 'San Salvador (volcano)' }, // vulcano, non la città capitale
+  '353090': { lang: 'en', title: 'Santiago Island (Galápagos)' }, // isola vulcanica delle Galápagos, non la capitale del Cile
 };
 const WIKI_SKIP = new Set([
   '353011', // Ecuador (vulcano dei Galápagos) -> altrimenti risolverebbe sullo stato Ecuador
+  '221170', // Adwa (vulcano etiope) -> altrimenti risolverebbe sulla città di Adua/Adwa; nessuna voce dedicata trovata
 ]);
 
 // Il dataset Smithsonian GVP usato è fermo al ~2020: per i vulcani più attivi del
