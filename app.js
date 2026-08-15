@@ -37,9 +37,34 @@ const ERUPTION_OVERRIDE = {
   '211040': { text: 'Attività stromboliana persistente, con parossismi il 23 maggio e il 12 giugno 2026', verified: '15 agosto 2026', source: 'INGV' },
   '332010': { text: 'Eruzione a episodi dal 23 dicembre 2024 — ultimo episodio (53°) il 12-13 agosto 2026, ora in pausa', verified: '15 agosto 2026', source: 'USGS - Hawaiian Volcano Observatory' },
   '341090': { text: 'Attività persistente nel 2026, con decine di esalazioni di cenere e gas al giorno (semaforo giallo, fase 2)', verified: '15 agosto 2026', source: 'CENAPRED' },
-  '233020': { text: 'Eruzione del 13 febbraio 2026, con colata di lava sul fianco sud che ha raggiunto la strada nazionale il 13 marzo', verified: '15 agosto 2026', source: 'OVPF-IPGP' },
+  '233020': { text: 'Eruzione del 13 febbraio 2026, con colata di lava sul fianco sud che ha raggiunto la strada nazionale il 13 marzo (conclusa il 25 marzo)', verified: '15 agosto 2026', source: 'OVPF-IPGP' },
   '282080': { text: 'Attività esplosiva frequente nel 2025-2026, con una grande eruzione ad aprile 2026 (pennacchio di cenere di 3,4 km)', verified: '15 agosto 2026', source: 'JMA / GVP' },
+  '264180': { text: 'In corso — emissioni di cenere quasi quotidiane fino alla prima settimana di agosto 2026 (pennacchi fino a 1200 m)', verified: '15 agosto 2026', source: 'PVMBG / VolcanoDiscovery' },
+  '263300': { text: 'Attività esplosiva in corso nel 2026, livello di allerta 3 (Standby)', verified: '15 agosto 2026', source: 'PVMBG' },
+  '268030': { text: 'Attività esplosiva persistente nel 2026', verified: '15 agosto 2026', source: 'PVMBG / MAGMA Indonesia' },
+  '268010': { text: 'Attività eruttiva pressoché continua nel 2026 — uno dei vulcani più costantemente attivi al mondo', verified: '15 agosto 2026', source: 'PVMBG' },
+  '262000': { text: 'Attività esplosiva intermittente in corso nel 2026 (Anak Krakatau)', verified: '15 agosto 2026', source: 'PVMBG / VolcanoDiscovery' },
+  '342090': { text: 'Attività stromboliana quasi continua; una fase eruttiva più intensa si è conclusa il 3-4 agosto 2026', verified: '15 agosto 2026', source: 'INSIVUMEH' },
 };
+
+// Sottoinsieme di ERUPTION_OVERRIDE ritenuto in eruzione attiva proprio ora (non solo
+// "attività recente"): usato per l'icona verde sulla mappa. Elenco curato e verificato
+// manualmente il 15 agosto 2026 — non esaustivo (il GVP ne segue in media una ventina
+// contemporaneamente nel mondo): Kilauea è escluso perché in pausa tra un episodio e
+// l'altro, Piton de la Fournaise perché l'eruzione si è conclusa a marzo 2026.
+const ACTIVE_NOW = new Set([
+  '211060', // Etna
+  '211040', // Stromboli
+  '282080', // Sakurajima (Aira)
+  '264180', // Lewotobi
+  '263300', // Semeru
+  '268030', // Ibu
+  '268010', // Dukono
+  '262000', // Krakatau
+  '342090', // Fuego
+  '341090', // Popocatépetl
+]);
+const ACTIVE_NOW_VERIFIED = '15 agosto 2026';
 
 const WMO = {
   0:['Sereno','☀️'],1:['Prevalentemente sereno','🌤️'],2:['Parzialmente nuvoloso','⛅'],3:['Nuvoloso','☁️'],
@@ -56,7 +81,18 @@ const WMO = {
 let ALL = [];
 let markerIndex = {}; // id -> leaflet marker
 
+const ACTIVE_SVG = `<svg viewBox="0 0 24 24" width="14" height="14"><path d="M3 19l6-13 3 5 2-3 7 11H3z" fill="#fff"/><path d="M11.2 5.4c.8-1 .8-2.1 0-3.1" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`;
+
 function iconFor(v) {
+  if (ACTIVE_NOW.has(v.id)) {
+    return L.divIcon({
+      className: 'volcano-icon-wrap',
+      html: `<div class="volcano-icon-active" title="Vulcano attivo ora">${ACTIVE_SVG}</div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+      popupAnchor: [0, -12],
+    });
+  }
   const cat = categoryOf(v.type);
   return L.divIcon({
     className: 'volcano-icon-wrap',
@@ -79,8 +115,11 @@ function popupShell(v) {
     ? `<div class="vc-erupt-note vc-erupt-note--fresh">✓ Verificato il ${eruptOverride.verified} — fonte: ${eruptOverride.source}</div>`
     : `<div class="vc-erupt-note">Dato Smithsonian GVP (dataset ~2020) — potrebbero esistere eruzioni più recenti non riportate qui</div>`;
 
+  const activeBadge = ACTIVE_NOW.has(v.id) ? `<div class="vc-active-badge">🌋 Attivo ora</div>` : '';
+
   return `
     <div class="vc-photo vc-photo-fallback" data-photo="1">
+      ${activeBadge}
       <div class="vc-photo-caption">
         <div class="vc-name">${v.name}</div>
         <div class="vc-country">${v.country}${v.region ? ' · ' + v.region : ''}</div>
@@ -171,6 +210,9 @@ function buildLegend() {
     li.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.label}`;
     list.appendChild(li);
   });
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="dot dot--active">${ACTIVE_SVG}</span>Attivo ora (${ACTIVE_NOW.size}, verificato ${ACTIVE_NOW_VERIFIED})`;
+  list.appendChild(li);
 }
 
 function initMap() {

@@ -11,6 +11,18 @@ CURATED_WEBCAMS = {
     "357120": {"label": "Sernageomin RNVV - Villarrica", "url": "https://rnvv.sernageomin.cl/volcan-villarrica/"},
     "283030": {"label": "Fujigoko.tv - Monte Fuji", "url": "https://live.fujigoko.tv/?e=1&v=1"},
     "282080": {"label": "SkylineWebcams - Sakurajima", "url": "https://www.skylinewebcams.com/en/webcam/japan/prefecture-of-kagoshima/kagoshima/volcano-sakurajima.html"},
+    "342090": {"label": "INSIVUMEH - Fuego", "url": "https://geo.insivumeh.gob.gt/vulcam"},
+    "342030": {"label": "INSIVUMEH - Santiaguito (Santa Maria)", "url": "https://geo.insivumeh.gob.gt/vulcam"},
+    "263300": {"label": "MAGMA Indonesia (PVMBG) - Semeru", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "263250": {"label": "MAGMA Indonesia (PVMBG) - Merapi", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "262000": {"label": "MAGMA Indonesia (PVMBG) - Krakatau", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "268030": {"label": "MAGMA Indonesia (PVMBG) - Ibu", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "268010": {"label": "MAGMA Indonesia (PVMBG) - Dukono", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "264180": {"label": "MAGMA Indonesia (PVMBG) - Lewotobi", "url": "https://magma.esdm.go.id/v1/gunung-api/cctv"},
+    "345033": {"label": "OVSICORI-UNA - Arenal", "url": "http://www.ovsicori.una.ac.cr/vulcanologia/videoarenal.html"},
+    "352010": {"label": "IGEPN - El Reventador", "url": "https://www.igepn.edu.ec/reventador-camaras"},
+    "352050": {"label": "IGEPN - Cotopaxi", "url": "https://webcam.igepn.edu.ec/cotopaxi-camaras"},
+    "351020": {"label": "SGC - Nevado del Ruiz", "url": "https://www2.sgc.gov.co/Noticias/Paginas/Ahora-los-colombianos-podran-ver-en-vivo-la-actividad-del-volcan-Nevado-del-Ruiz.aspx"},
 }
 
 def fmt_eruption(raw):
