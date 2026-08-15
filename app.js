@@ -17,6 +17,17 @@ function categoryOf(type) {
   return CATEGORIES.find(c => c.test(t));
 }
 
+// Alcuni nomi di vulcano coincidono con voci Wikipedia generiche (es. "Vulcano" -> la
+// voce enciclopedica sul concetto di vulcano, non l'isola) o con nomi di stati/luoghi
+// omonimi. Qui correggiamo manualmente il titolo giusto da cercare, o disattiviamo la
+// ricerca quando non esiste una voce dedicata corretta.
+const WIKI_TITLE_OVERRIDE = {
+  '211050': { lang: 'it', title: 'Isola di Vulcano' }, // Vulcano (Isole Eolie), non il concetto generico "vulcano"
+};
+const WIKI_SKIP = new Set([
+  '353011', // Ecuador (vulcano dei Galápagos) -> altrimenti risolverebbe sullo stato Ecuador
+]);
+
 const WMO = {
   0:['Sereno','☀️'],1:['Prevalentemente sereno','🌤️'],2:['Parzialmente nuvoloso','⛅'],3:['Nuvoloso','☁️'],
   45:['Nebbia','🌫️'],48:['Nebbia con brina','🌫️'],
@@ -101,11 +112,12 @@ async function enrichPopup(v, node) {
     });
 
   // --- photo + extract via Wikipedia ---
+  if (WIKI_SKIP.has(v.id)) return;
   const photoEl = node.querySelector('[data-photo]');
   const extractWrap = node.querySelector('.vc-extract-wrap');
-  const title = encodeURIComponent(v.name.replace(/ /g, '_'));
 
-  async function tryWiki(lang) {
+  async function tryWiki(lang, titleOverride) {
+    const title = encodeURIComponent((titleOverride || v.name).replace(/ /g, '_'));
     const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${title}`, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('not found');
     return res.json();
@@ -113,7 +125,12 @@ async function enrichPopup(v, node) {
 
   try {
     let data;
-    try { data = await tryWiki('it'); } catch (e) { data = await tryWiki('en'); }
+    const override = WIKI_TITLE_OVERRIDE[v.id];
+    if (override) {
+      data = await tryWiki(override.lang, override.title);
+    } else {
+      try { data = await tryWiki('it'); } catch (e) { data = await tryWiki('en'); }
+    }
     if (data.thumbnail && data.thumbnail.source) {
       const imgUrl = data.thumbnail.source.replace(/\/\d+px-/, '/500px-');
       photoEl.style.backgroundImage = `url('${imgUrl}')`;
