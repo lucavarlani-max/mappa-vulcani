@@ -22,6 +22,7 @@
   <div class="top-controls">
     <input id="search-box" type="text" placeholder="Cerca un vulcano o un paese…" autocomplete="off">
     <div id="search-results"></div>
+    <button id="webcam-toggle" type="button">🎥 Webcam <span id="webcam-count">0</span></button>
     <div class="stat-pill"><span id="stat-count">0</span> vulcani mappati</div>
   </div>
 </header>
@@ -33,6 +34,15 @@
     <h3>Tipologia</h3>
     <ul id="legend-list"></ul>
   </div>
+
+  <aside id="webcam-panel">
+    <div id="webcam-panel-header">
+      <h3>Webcam live</h3>
+      <button id="webcam-close" type="button" aria-label="Chiudi">✕</button>
+    </div>
+    <p id="webcam-panel-sub">Vulcani con una webcam pubblica nota — clicca il nome per localizzarlo sulla mappa, l'icona per aprire la diretta.</p>
+    <ul id="webcam-list"></ul>
+  </aside>
 
   <div id="loading-banner">Caricamento dell'atlante vulcanico…</div>
 </main>

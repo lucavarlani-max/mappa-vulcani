@@ -85,6 +85,23 @@ html,body{
 }
 .search-item:hover{background:#28241a;color:var(--natgeo-yellow);}
 .search-item small{opacity:.6;font-weight:300;}
+#webcam-toggle{
+  font-family:'Oswald',sans-serif;
+  font-size:12.5px;
+  letter-spacing:1px;
+  background:var(--ink-2);
+  color:var(--natgeo-yellow);
+  border:1px solid var(--natgeo-yellow);
+  padding:8px 13px;
+  border-radius:2px;
+  cursor:pointer;
+  white-space:nowrap;
+  font-weight:600;
+  transition:background .15s ease, color .15s ease;
+}
+#webcam-toggle:hover{background:var(--natgeo-yellow);color:var(--ink);}
+#webcam-toggle.is-active{background:var(--natgeo-yellow);color:var(--ink);}
+
 .stat-pill{
   font-family:'Oswald',sans-serif;
   font-size:12px;
@@ -157,6 +174,111 @@ html,body{
   margin-bottom:5px;
 }
 .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.4);}
+
+/* ---------- webcam panel ---------- */
+#webcam-panel{
+  position:absolute;
+  top:0;
+  right:-340px;
+  width:320px;
+  height:100%;
+  background:rgba(13,13,13,.97);
+  border-left:2px solid var(--natgeo-yellow);
+  z-index:1100;
+  display:flex;
+  flex-direction:column;
+  transition:right .25s ease;
+  box-shadow:-6px 0 20px rgba(0,0,0,.4);
+}
+#webcam-panel.open{right:0;}
+#webcam-panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 16px 10px;
+  border-bottom:1px solid #3a3934;
+}
+#webcam-panel-header h3{
+  margin:0;
+  font-family:'Oswald',sans-serif;
+  font-size:15px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--natgeo-yellow);
+}
+#webcam-close{
+  background:none;
+  border:none;
+  color:var(--paper);
+  font-size:18px;
+  cursor:pointer;
+  line-height:1;
+  padding:2px 6px;
+}
+#webcam-close:hover{color:var(--natgeo-yellow);}
+#webcam-panel-sub{
+  margin:0;
+  padding:10px 16px;
+  font-size:12px;
+  line-height:1.5;
+  color:#a8a49a;
+  font-style:italic;
+  border-bottom:1px solid #2b2a27;
+}
+#webcam-list{
+  list-style:none;
+  margin:0;
+  padding:6px 0;
+  overflow-y:auto;
+  flex:1;
+}
+.webcam-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  border-bottom:1px solid #211f1c;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.webcam-item:hover{background:#211f1c;}
+.webcam-item .wi-dot{
+  width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+  background:#6b6a63;
+}
+.webcam-item.wi-active .wi-dot{
+  background:#2fae4e;
+  box-shadow:0 0 6px 1px rgba(47,174,78,.7);
+}
+.webcam-item .wi-body{flex:1;min-width:0;}
+.webcam-item .wi-name{
+  font-family:'Oswald',sans-serif;
+  font-size:13.5px;
+  color:var(--paper);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.webcam-item .wi-place{
+  font-size:11px;
+  color:#8a8880;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.webcam-item .wi-open{
+  flex:0 0 auto;
+  color:var(--natgeo-yellow);
+  font-size:16px;
+  text-decoration:none;
+  padding:4px 6px;
+  border-radius:2px;
+}
+.webcam-item .wi-open:hover{background:rgba(255,204,0,.15);}
+
+@media (max-width:720px){
+  #webcam-panel{width:88%;right:-100%;}
+}
 
 /* ---------- bottom bar ---------- */
 #bottom-bar{

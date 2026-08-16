@@ -309,6 +309,49 @@ function setupSearch(map, cluster) {
   });
 }
 
+function buildWebcamPanel(map, cluster) {
+  const panel = document.getElementById('webcam-panel');
+  const toggle = document.getElementById('webcam-toggle');
+  const closeBtn = document.getElementById('webcam-close');
+  const list = document.getElementById('webcam-list');
+
+  const withCams = ALL.filter(v => v.webcam).sort((a, b) => a.name.localeCompare(b.name, 'it'));
+  document.getElementById('webcam-count').textContent = withCams.length;
+
+  list.innerHTML = withCams.map(v => `
+    <li class="webcam-item${ACTIVE_NOW.has(v.id) ? ' wi-active' : ''}" data-id="${v.id}">
+      <span class="wi-dot" title="${ACTIVE_NOW.has(v.id) ? 'Attivo ora' : ''}"></span>
+      <span class="wi-body">
+        <span class="wi-name">${v.name}</span><br>
+        <span class="wi-place">${v.country} · ${v.webcam.label}</span>
+      </span>
+      <a class="wi-open" href="${v.webcam.url}" target="_blank" rel="noopener noreferrer" title="Apri la webcam">↗</a>
+    </li>
+  `).join('');
+
+  function openPanel() { panel.classList.add('open'); toggle.classList.add('is-active'); }
+  function closePanel() { panel.classList.remove('open'); toggle.classList.remove('is-active'); }
+
+  toggle.addEventListener('click', () => {
+    panel.classList.contains('open') ? closePanel() : openPanel();
+  });
+  closeBtn.addEventListener('click', closePanel);
+
+  list.addEventListener('click', (e) => {
+    if (e.target.closest('.wi-open')) return; // lascia che il link apra la webcam normalmente
+    const item = e.target.closest('.webcam-item');
+    if (!item) return;
+    const v = ALL.find(x => x.id === item.dataset.id);
+    if (!v) return;
+    map.setView([v.lat, v.lon], 10, { animate: true });
+    const marker = markerIndex[v.id];
+    setTimeout(() => {
+      cluster.zoomToShowLayer(marker, () => marker.openPopup());
+    }, 300);
+    if (window.innerWidth < 720) closePanel();
+  });
+}
+
 async function boot() {
   const res = await fetch('data/volcanoes.json');
   ALL = await res.json();
@@ -316,6 +359,7 @@ async function boot() {
   buildLegend();
   const { map, cluster } = initMap();
   setupSearch(map, cluster);
+  buildWebcamPanel(map, cluster);
   document.getElementById('loading-banner').classList.add('hidden');
 }
 
